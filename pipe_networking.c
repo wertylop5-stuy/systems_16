@@ -44,6 +44,7 @@ int server_handshake(int *to_client) {
 	}
 	else {
 		printf("[SERVER] error: did not receive acknowledgement\n");
+		exit(1);
 	}
 	
 	return wkp;
@@ -82,7 +83,13 @@ int client_handshake(int *to_server) {
 	remove(name);
 	
 	//Ensure that ACK was received
-	if (!strcmp(data, ACK)) printf("[CLIENT] ACK accepted\n");
+	if (!strcmp(data, ACK)) {
+		printf("[CLIENT] ACK accepted\n");
+	}
+	else { 
+		printf("[CLIENT] did not receive ACK\n");
+		exit(1);
+	}
 	
 	//Return ACK to server
 	printf("[CLIENT] returning acknowledgement to server\n");

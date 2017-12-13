@@ -15,7 +15,7 @@ int main() {
 	int from_client;
 	
 	from_client = server_handshake( &to_client );
-	/*
+	
 	char data[BUFFER_SIZE];
 	
 	do {
@@ -25,5 +25,5 @@ int main() {
 		write(to_client, data, strlen(data));
 	}
 	while ( strlen(data) > 0 );
-	*/
+	
 }
