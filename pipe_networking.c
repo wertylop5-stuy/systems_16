@@ -14,6 +14,7 @@ int server_handshake(int *to_client) {
 	//The well known pipe the client will connect to
 	printf("[SERVER] creating well known pipe\n");
 	int wkp = mkfifo(WKP, 0644);
+	wkp = open(WKP, 0644);
 	
 	//Whenever client connects, it will read the data that it sends thru
 	char data[HANDSHAKE_BUFFER_SIZE];
@@ -39,6 +40,7 @@ int server_handshake(int *to_client) {
 	//Check if ACK and data match
 	if (!strcmp(data, ACK)) {
 		printf("[SERVER] received acknowledgement back\n");
+		printf("[SERVER] connection esatblished\n");
 	}
 	else {
 		printf("[SERVER] error: did not receive acknowledgement\n");
@@ -58,5 +60,24 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  return 0;
+	//The private the server will connect to
+	printf("[CLIENT] creating priv pipe\n");
+	char name[] = "werf";
+	int priv = mkfifo(name, 0644);
+	
+	printf("[CLIENT] sending priv name to server\n");
+	*to_server = open(WKP, 0644);
+	write(*to_server, name, HANDSHAKE_BUFFER_SIZE);
+	
+	//Whenever client connects, it will read the data that it sends thru
+	char data[HANDSHAKE_BUFFER_SIZE];
+	printf("[CLIENT] reading server response\n");
+	read(priv, data, HANDSHAKE_BUFFER_SIZE);
+	printf("[CLIENT] data: %s\n", data);
+	
+	if (!strcmp(data, ACK)) printf("[CLIENT] ACK accepted\n");
+	write(*to_server, data, strlen(data));
+	
+	
+	return priv;
 }
