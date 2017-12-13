@@ -40,6 +40,9 @@ int server_handshake(int *to_client) {
 	if (!strcmp(data, ACK)) {
 		printf("[SERVER] received acknowledgement back\n");
 	}
+	else {
+		printf("[SERVER] error: did not receive acknowledgement\n");
+	}
 	
 	return wkp;
 }
