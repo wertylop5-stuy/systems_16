@@ -98,3 +98,16 @@ int client_handshake(int *to_server) {
 	
 	return priv;
 }
+
+void server_fin(int from_client, int to_client) {
+	
+}
+
+void client_fin(int from_server, int to_server) {
+	//write(to_server, FIN, strlen(FIN));
+	
+	exit(1);
+}
+
+
+

@@ -11,12 +11,15 @@
 #define NETWORKING_H
 #define ACK "HOLA"
 #define WKP "WKP"
+#define FIN "GOODBYE"
 
 #define HANDSHAKE_BUFFER_SIZE 10
 #define BUFFER_SIZE 1000
 
 int server_handshake(int *to_client);
-
 int client_handshake(int *to_server);
+
+void server_fin(int from_client, int to_client);
+void client_fin(int from_server, int to_server);
 
 #endif

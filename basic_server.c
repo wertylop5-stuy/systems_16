@@ -5,7 +5,7 @@ char* rot13(char *text) {
 	
 	int x;
 	for (x = 0; x < strlen(text); x++) {
-		//new_text[x] = 
+		new_text[x] = (text[x] + 13);
 	}
 	return 0;
 }
@@ -21,6 +21,12 @@ int main() {
 	do {
 		printf("Waiting for client message\n");
 		read(from_client, data, sizeof(data));
+		
+		if (!strcmp(data, FIN)) {
+			printf("[SERVER] received FIN from client\n");
+			server_fin(from_client, to_client);
+		}
+		
 		printf("Read data from client:%s\n", data);
 		write(to_client, data, strlen(data));
 	}
