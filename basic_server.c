@@ -3,11 +3,20 @@
 char* rot13(char *text) {
 	char *new_text = (char*)malloc(strlen(text)*sizeof(char));
 	
+	unsigned char temp;
 	int x;
-	for (x = 0; x < strlen(text); x++) {
-		new_text[x] = (text[x] + 13);
+	for (x = 0; x < strlen(text)-1; x++) {
+		temp = text[x] + 13;
+		if ((text[x] >= 'A' && text[x] <= 'Z') && temp > 'Z') {
+			temp -= 26;
+		}
+		else if ((text[x] >= 'a' && text[x] <= 'z') && temp > 'z') {
+			temp -= 26;
+		}
+		new_text[x] = temp;
 	}
-	return 0;
+	
+	return new_text;
 }
 
 int main() {
@@ -17,7 +26,7 @@ int main() {
 	from_client = server_handshake( &to_client );
 	
 	char data[BUFFER_SIZE];
-	
+	int len;
 	do {
 		printf("Waiting for client message\n");
 		read(from_client, data, sizeof(data));
@@ -28,7 +37,8 @@ int main() {
 		}
 		
 		printf("Read data from client:%s\n", data);
-		write(to_client, data, strlen(data));
+		len = strlen(rot13(data));
+		write(to_client, rot13(data), len);
 	}
 	while ( strlen(data) > 0 );
 	
