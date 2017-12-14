@@ -21,7 +21,7 @@ int main() {
 	
 	char data[BUFFER_SIZE];
 	
-	//signal(SIGINT, sighandler);
+	signal(SIGINT, sighandler);
 	printf("[CLIENT] Press ^C to exit\n");
 	
 	//fgets(data, sizeof(data), stdin);
@@ -31,9 +31,9 @@ int main() {
 		printf("Sending message to server\n");
 		write(to_server, data, sizeof(data));
 		
-		printf("Reading data from server\n");
+		printf("Reading response from server\n");
 		read(from_server, data, strlen(data));
-		printf("Data read:%s\n", data);
+		printf("Response:\n%s\n", data);
 	}
 	while ( strlen(data) > 0 );
 	

@@ -28,7 +28,7 @@ int main() {
 	char data[BUFFER_SIZE];
 	int len;
 	do {
-		printf("Waiting for client message\n");
+		printf("\nWaiting for client message\n");
 		read(from_client, data, sizeof(data));
 		
 		if (!strcmp(data, FIN)) {
@@ -36,8 +36,9 @@ int main() {
 			server_fin(from_client, to_client);
 		}
 		
-		printf("Read data from client:%s\n", data);
+		printf("Read message from client:\n%s", data);
 		len = strlen(rot13(data));
+		printf("Sending response to client\n");
 		write(to_client, rot13(data), len);
 	}
 	while ( strlen(data) > 0 );

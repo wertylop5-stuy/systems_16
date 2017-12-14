@@ -1,5 +1,14 @@
 #include "pipe_networking.h"
 
+static void validate(char *entity, char *data, const char* const expected) {
+	if (!strcmp(data, expected)) {
+		printf("[%s] received expected value\n", entity);
+	}
+	else {
+		fprintf(stderr, "[%s] did not receive expected value\n", entity);
+		exit(1);
+	}
+}
 
 /*=========================
   server_handshake
@@ -38,14 +47,8 @@ int server_handshake(int *to_client) {
 	read(wkp, data, sizeof(data));
 	
 	//Check if ACK and data match
-	if (!strcmp(data, ACK)) {
-		printf("[SERVER] received acknowledgement back\n");
-		printf("[SERVER] connection established\n");
-	}
-	else {
-		printf("[SERVER] error: did not receive acknowledgement\n");
-		exit(1);
-	}
+	validate("SERVER", data, ACK);
+	printf("[SERVER] connection established\n");
 	
 	return wkp;
 }
@@ -83,13 +86,7 @@ int client_handshake(int *to_server) {
 	remove(name);
 	
 	//Ensure that ACK was received
-	if (!strcmp(data, ACK)) {
-		printf("[CLIENT] ACK accepted\n");
-	}
-	else { 
-		printf("[CLIENT] did not receive ACK\n");
-		exit(1);
-	}
+	validate("CLIENT", data, ACK);
 	
 	//Return ACK to server
 	printf("[CLIENT] returning acknowledgement to server\n");
@@ -100,13 +97,44 @@ int client_handshake(int *to_server) {
 }
 
 void server_fin(int from_client, int to_client) {
+	char data[HANDSHAKE_BUFFER_SIZE];
+	//Server sends ACK to client
+	printf("[SERVER] sending ACK to client\n");
+	write(to_client, ACK, strlen(ACK));
 	
+	//Server sends FIN to client
+	printf("[SERVER] sending FIN to client\n");
+	write(to_client, FIN, strlen(FIN));
+	
+	//Server now waits for client ACK
+	printf("[SERVER] waiting for client ACK\n");
+	read(from_client, data, sizeof(data));
+	validate("SERVER", data, ACK);
+	
+	//TODO add pipe recreation routine
+	exit(0);
 }
 
 void client_fin(int from_server, int to_server) {
-	//write(to_server, FIN, strlen(FIN));
+	char data[HANDSHAKE_BUFFER_SIZE];
+	//Client sends FIN to server
+	printf("[CLIENT] sending FIN to server\n");
+	write(to_server, FIN, strlen(FIN));
 	
-	exit(1);
+	//Client waits to receive ACK
+	printf("[CLIENT] waiting for server ACK\n");
+	read(from_server, data, sizeof(data));
+	validate("CLIENT", data, ACK);
+	
+	//Client now waits for server FIN
+	printf("[CLIENT] waiting for server FIN\n");
+	read(from_server, data, sizeof(data));
+	validate("CLIENT", data, FIN);
+	
+	//Client returns ACK and closes
+	write(to_server, ACK, strlen(ACK));
+	
+	exit(0);
 }
 
 
