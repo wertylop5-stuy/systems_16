@@ -1,5 +1,3 @@
-#include<signal.h>
-
 #include "pipe_networking.h"
 
 int to_server;

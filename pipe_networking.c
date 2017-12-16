@@ -64,14 +64,19 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
+	
+	//attempt to open wkp
+	printf("[CLIENT] opening well known pipe\n");
+	*to_server = open(WKP, O_WRONLY);
+	
 	//The private pipe the server will connect to
 	printf("[CLIENT] creating priv pipe\n");
-	char name[] = "werf";
+	char name[HANDSHAKE_BUFFER_SIZE];
+	sprintf(name, "%d", getpid());
 	int priv = mkfifo(name, 0644);
 	
 	//send private pipe name to server
 	printf("[CLIENT] sending priv name to server\n");
-	*to_server = open(WKP, O_WRONLY);
 	write(*to_server, name, HANDSHAKE_BUFFER_SIZE);
 	
 	//Read the server's ACK
@@ -102,17 +107,19 @@ void server_fin(int from_client, int to_client) {
 	printf("[SERVER] sending ACK to client\n");
 	write(to_client, ACK, strlen(ACK));
 	
+	//writing twice in a row is some sort of race condition
+	//Sometimes the messages are received seperately, but
+	//sometimes they may be read at the same time by the client
+	/*
 	//Server sends FIN to client
 	printf("[SERVER] sending FIN to client\n");
 	write(to_client, FIN, strlen(FIN));
+	*/
 	
 	//Server now waits for client ACK
 	printf("[SERVER] waiting for client ACK\n");
 	read(from_client, data, sizeof(data));
 	validate("SERVER", data, ACK);
-	
-	//TODO add pipe recreation routine
-	exit(0);
 }
 
 void client_fin(int from_server, int to_server) {
@@ -126,12 +133,16 @@ void client_fin(int from_server, int to_server) {
 	read(from_server, data, sizeof(data));
 	validate("CLIENT", data, ACK);
 	
+	/*
 	//Client now waits for server FIN
 	printf("[CLIENT] waiting for server FIN\n");
 	read(from_server, data, sizeof(data));
+	printf("[CLIENT] got %s\n", data);
 	validate("CLIENT", data, FIN);
+	*/
 	
 	//Client returns ACK and closes
+	printf("[CLIENT] sending ACK to server\n");
 	write(to_server, ACK, strlen(ACK));
 	
 	exit(0);
