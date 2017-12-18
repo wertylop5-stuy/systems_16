@@ -44,6 +44,7 @@ int server_handshake(int *to_client) {
 	write(*to_client, ACK, strlen(ACK));
 	
 	//Now, wait for client to send back the acknowledgement
+	strncpy(data, "", sizeof(data));
 	read(wkp, data, sizeof(data));
 	
 	//Check if ACK and data match
